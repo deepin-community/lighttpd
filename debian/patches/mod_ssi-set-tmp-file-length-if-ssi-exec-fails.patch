@@ -1,0 +1,38 @@
+From 45918e7a2a90a17afd0e9e360be39cfa037f5e9a Mon Sep 17 00:00:00 2001
+From: Glenn Strauss <gstrauss@gluelogic.com>
+Date: Sun, 11 May 2025 16:59:43 -0400
+Subject: [PATCH] [mod_ssi] set tmp file length if ssi exec fails
+Origin: upstream, https://git.lighttpd.net/lighttpd/lighttpd1.4/commit/45918e7a2a90a17afd0e9e360be39cfa037f5e9a
+Forwarded: not-needed
+
+- set tmp file length properly if ssi exec fails
+- use safer memmove() when moving data in buffer after SSI HTML comment
+---
+ src/mod_ssi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/mod_ssi.c b/src/mod_ssi.c
+index d17d39e9..496eaa61 100644
+--- a/src/mod_ssi.c
++++ b/src/mod_ssi.c
+@@ -1166,7 +1166,7 @@ static int process_ssi_stmt(request_st * const r, handler_ctx * const p, const c
+ 
+ 		int status = 0;
+ 		struct stat stb;
+-		stb.st_size = 0;
++		stb.st_size = flen;
+ 		/*(expects STDIN_FILENO open to /dev/null)*/
+ 		int serrh_fd = r->conf.serrh ? r->conf.serrh->fd : -1;
+ 		pid = fdevent_sh_exec(cmd, NULL, -1, c->file.fd, serrh_fd);
+@@ -1514,7 +1514,7 @@ static void mod_ssi_read_fd(request_st * const r, handler_ctx * const p, struct
+ 				if (prelen - pretag && !p->if_is_false) {
+ 					chunkqueue_append_mem(cq, buf+pretag, prelen-pretag);
+ 				}
+-				memcpy(buf, buf+prelen, (offset -= prelen));
++				memmove(buf, buf+prelen, (offset -= prelen));
+ 				pretag = 0;
+ 				break;
+ 			}
+-- 
+2.49.0
+

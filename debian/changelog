@@ -1,3 +1,15 @@
+lighttpd (1.4.79-2) unstable; urgency=medium
+
+  * Add patch to add mod_webdav log trace for EACCES on PUT (closes: #1103710)
+  * Add post-1.4.79 patches from upstream
+  * Build lighttpd on hurd w/o optional broken libs
+  * NEWS entry for hardened systemd lighttpd.service
+  * Edit lighttpd.NEWS for 1.4.77-1
+  * Update Stefan Bühler email address
+  * Update Glenn Strauss upstream signing key
+
+ -- Glenn Strauss <gstrauss@gluelogic.com>  Mon, 12 May 2025 00:40:28 -0500
+
 lighttpd (1.4.79-1) unstable; urgency=medium
 
   [ Glenn Strauss ]

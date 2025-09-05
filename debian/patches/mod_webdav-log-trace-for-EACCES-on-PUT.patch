@@ -1,0 +1,58 @@
+From 85e4a9937dc870e4907d15f301a00deea4c950ab Mon Sep 17 00:00:00 2001
+From: Glenn Strauss <gstrauss@gluelogic.com>
+Date: Tue, 6 May 2025 23:47:41 -0400
+Subject: [PATCH] [mod_webdav] log trace for EACCES on PUT
+Origin: upstream, https://git.lighttpd.net/lighttpd/lighttpd1.4/commit/85e4a9937dc870e4907d15f301a00deea4c950ab
+Forwarded: not-needed
+
+output trace, e.g. for hardenend systemd lighttpd.service with
+  ProtectHome=yes
+where pre-existing configs might now fail PUT requests to
+mod_webdav if writing files to home directories
+
+x-ref:
+  "lighttpd-mod-webdav: Regression 1.4.79-1 webdav PUT gives HTTP 500, 1.4.77-1 works"
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1103710
+---
+ src/mod_webdav.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/mod_webdav.c b/src/mod_webdav.c
+index ee7990ce..e43bf3bb 100644
+--- a/src/mod_webdav.c
++++ b/src/mod_webdav.c
+@@ -4627,6 +4627,16 @@ mod_webdav_put_0 (request_st * const r, const plugin_config * const pconf)
+         return HANDLER_FINISHED;
+     }
+ 
++    /*if (errno == EACCES || errno == EPERM || errno == EROFS)*/
++    {
++        log_perror(r->conf.errh, __FILE__, __LINE__,
++          "open(%s, O_WRONLY|...)", r->physical.path.ptr);
++      #ifdef __linux__
++        log_error(r->conf.errh, __FILE__, __LINE__,
++          "check systemd lighttpd.service; e.g. ProtectHome=yes");
++      #endif
++    }
++
+     http_status_set_error(r, 500); /* Internal Server Error */
+     return HANDLER_FINISHED;
+ }
+@@ -4688,7 +4698,14 @@ mod_webdav_put_prep (request_st * const r, const plugin_config * const pconf)
+           case ENOTDIR:
+             http_status_set_error(r, 409); /* Conflict */
+             break;
++          /*case EACCES: case EPERM: case EROFS:*/
+           default:
++            log_perror(r->conf.errh, __FILE__, __LINE__,
++              "open() tmpfile for %s", r->physical.path.ptr);
++           #ifdef __linux__
++            log_error(r->conf.errh, __FILE__, __LINE__,
++              "check systemd lighttpd.service; e.g. ProtectHome=yes");
++           #endif
+             http_status_set_error(r, 500); /* Internal Server Error */
+             break;
+         }
+-- 
+2.49.0
+
