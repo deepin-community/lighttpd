@@ -1,0 +1,74 @@
+From 3d550097d2ededc34ac67dc8f63c156afdcdd768 Mon Sep 17 00:00:00 2001
+From: Glenn Strauss <gstrauss@gluelogic.com>
+Date: Thu, 17 Apr 2025 21:39:39 -0400
+Subject: [PATCH] [TLS] 0-init plugin_ssl_ctx (fixes #3281)
+Origin: upstream, https://git.lighttpd.net/lighttpd/lighttpd1.4/commit/3d550097d2ededc34ac67dc8f63c156afdcdd768
+Forwarded: not-needed
+
+(thx mwhitlock)
+
+x-ref:
+  https://redmine.lighttpd.net/issues/3281
+  `lighttpd -tt` segfaults in mod_gnutls.c
+---
+ src/mod_gnutls.c  | 2 +-
+ src/mod_mbedtls.c | 2 +-
+ src/mod_nss.c     | 2 +-
+ src/mod_wolfssl.c | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/mod_gnutls.c b/src/mod_gnutls.c
+index e789d851..1dfc2b3d 100644
+--- a/src/mod_gnutls.c
++++ b/src/mod_gnutls.c
+@@ -2389,7 +2389,7 @@ mod_gnutls_set_defaults_sockets(server *srv, plugin_data *p)
+         /*conf.ssl_ctx = NULL;*//*(filled by network_init_ssl() even on error)*/
+         if (0 == network_init_ssl(srv, &conf, p)) {
+             plugin_ssl_ctx * const s = p->ssl_ctxs[sidx] =
+-              ck_malloc(sizeof(plugin_ssl_ctx));
++              ck_calloc(1, sizeof(plugin_ssl_ctx));
+             s->ssl_session_ticket = conf.ssl_session_ticket;
+             s->priority_cache     = conf.priority_cache;
+           #if GNUTLS_VERSION_NUMBER < 0x030600
+diff --git a/src/mod_mbedtls.c b/src/mod_mbedtls.c
+index 357b4f3b..2d5f77b8 100644
+--- a/src/mod_mbedtls.c
++++ b/src/mod_mbedtls.c
+@@ -1983,7 +1983,7 @@ mod_mbedtls_set_defaults_sockets(server *srv, plugin_data *p)
+         /*conf.ssl_ctx = NULL;*//*(filled by network_init_ssl() even on error)*/
+         if (0 == network_init_ssl(srv, &conf, p)) {
+             plugin_ssl_ctx * const s = p->ssl_ctxs[sidx] =
+-              ck_malloc(sizeof(plugin_ssl_ctx));
++              ck_calloc(1, sizeof(plugin_ssl_ctx));
+             s->ssl_ctx            = conf.ssl_ctx;
+             s->ciphersuites       = conf.ciphersuites;
+             s->curves             = conf.curves;
+diff --git a/src/mod_nss.c b/src/mod_nss.c
+index 8501d263..cd45b315 100644
+--- a/src/mod_nss.c
++++ b/src/mod_nss.c
+@@ -2045,7 +2045,7 @@ mod_nss_set_defaults_sockets(server *srv, plugin_data *p)
+         /*conf.ssl_ctx = NULL;*//*(filled by network_init_ssl() even on error)*/
+         if (0 == network_init_ssl(srv, &conf, p)) {
+             plugin_ssl_ctx * const s = p->ssl_ctxs[sidx] =
+-              ck_malloc(sizeof(plugin_ssl_ctx));
++              ck_calloc(1, sizeof(plugin_ssl_ctx));
+             s->model              = conf.model;
+             s->pc                 = conf.pc;
+             s->kp                 = mod_nss_kp_acq(s->pc);
+diff --git a/src/mod_wolfssl.c b/src/mod_wolfssl.c
+index a9d3f1f6..7cbcc563 100644
+--- a/src/mod_wolfssl.c
++++ b/src/mod_wolfssl.c
+@@ -2753,7 +2753,7 @@ mod_openssl_set_defaults_sockets(server *srv, plugin_data *p)
+         /*conf.ssl_ctx = NULL;*//*(filled by network_init_ssl() even on error)*/
+         if (0 == network_init_ssl(srv, &conf, p)) {
+             plugin_ssl_ctx * const s = p->ssl_ctxs[sidx] =
+-              ck_malloc(sizeof(plugin_ssl_ctx));
++              ck_calloc(1, sizeof(plugin_ssl_ctx));
+             s->ssl_ctx = conf.ssl_ctx;
+             s->pc = conf.pc;
+             s->kp = mod_wolfssl_kp_acq(s->pc);
+-- 
+2.49.0
+

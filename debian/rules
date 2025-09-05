@@ -29,14 +29,14 @@ override_dh_auto_configure:
 		--with-attr \
 		--with-brotli \
 		--with-dbi \
-		--with-gnutls \
-		--with-krb5 \
+		$(if $(filter-out hurd-%,$(DEB_BUILD_ARCH)),--with-gnutls) \
+		$(if $(filter-out hurd-%,$(DEB_BUILD_ARCH)),--with-krb5) \
 		--with-ldap \
-		--with-libdeflate \
+		$(if $(filter-out hurd-%,$(DEB_BUILD_ARCH)),--with-libdeflate) \
 		--with-lua=lua5.4 \
 		--with-maxminddb \
 		--with-mbedtls \
-		--with-mysql \
+		$(if $(filter-out hurd-%,$(DEB_BUILD_ARCH)),--with-mysql) \
 		--with-nettle \
 		--with-nss \
 		--with-openssl \
@@ -46,7 +46,7 @@ override_dh_auto_configure:
 		--with-sasl \
 		--with-webdav-locks \
 		--with-webdav-props \
-		--with-wolfssl \
+		$(if $(filter-out hurd-%,$(DEB_BUILD_ARCH)),--with-wolfssl) \
 		--with-xxhash \
 		--with-zstd \
 		$(if $(filter pkg.lighttpd.libunwind,$(DEB_BUILD_PROFILES)),--with-libunwind) \
