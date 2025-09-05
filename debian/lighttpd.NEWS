@@ -1,0 +1,24 @@
+lighttpd (1.4.77-2) unstable; urgency=medium
+
+  lighttpd 1.4.77 strengthens lighttpd TLS defaults to MinProtocol TLSv1.3.
+  Modify lighttpd TLS module config in /etc/lighttpd/conf-available2/*.conf
+  to set MinProtocol if older TLS protocols need to be enabled.
+  Reference:
+    https://wiki.lighttpd.net/Docs_SSL
+
+ -- Glenn Strauss <gstrauss@gluelogic.com>  Tue, 11 Feb 2025 17:11:11 -0500
+
+lighttpd (1.4.69-1) unstable; urgency=medium
+
+  This version removes "mini-application" lighttpd modules for which
+  mod_magnet lua implementations are better and more flexible:
+    mod_evasive, mod_secdownload, mod_uploadprogress, mod_usertrack
+  (lighttpd 1.4.68 removed these modules, as announced in lighttpd
+   release notes throughout 2022)
+  Replacements:
+    https://wiki.lighttpd.net/ModMagnetExamples#lua-mod_evasive
+    https://wiki.lighttpd.net/ModMagnetExamples#lua-mod_secdownload
+    https://wiki.lighttpd.net/ModMagnetExamples#lua-mod_uploadprogress
+    https://wiki.lighttpd.net/ModMagnetExamples#lua-mod_usertrack
+
+ -- Glenn Strauss <gstrauss@gluelogic.com>  Tue, 20 Sep 2022 10:25:11 +0000
